@@ -1,10 +1,10 @@
 # AdaptiveIteratedSIR.jl
 
-This is a module which implements an iterated sampling importance resampling (i-SIR) Markov chain Monte Carlo algorithm. The implementation finds an appropriate number of particles automatically.
+This is a module which implements an iterated sampling importance resampling (i-SIR) Markov chain Monte Carlo algorithm. The implementation finds an appropriate number of particles automatically, as discussed in [arXiv:2512.00220](https://arxiv.org/abs/2512.00220).
 
 ## Run the experiments in the paper
 
-Before running the experiments, you need to clone this repository to your compute and launch Julia with four threads in the folder by calling:
+Before running the experiments in the paper [arXiv:2512.00220](https://arxiv.org/abs/2512.00220), you need to clone this repository to your compute and launch Julia with four threads in the folder by calling:
 
 ```sh
 julia --threads 4
