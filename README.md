@@ -40,9 +40,7 @@ Pkg.add(url="https://github.com/mvihola/AdaptiveIteratedSIR.jl")
 
 The adaptive i-SIR is used for sampling from the 
 distribution of the form:
-$$
-    p(x) \propto q(x)w(x),
-$$
+$$p(x) \propto q(x)w(x),$$
 where $q$ is the proposal distribution (which dominates $p$) and $w(x) \propto \frac{dp}{dq}(x)$ is the corresponding (unnormalised) importance weight.
 
 The necessary ingredients in the implementation are as follows:
