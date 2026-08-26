@@ -47,9 +47,10 @@ The necessary ingredients in the implementation are as follows:
 
 * `q!`: Function which simulates a realisation from the distribution: $q$: `q!(x, rng, scratch)` simulates a realisation of $x\sim q$ using random number generator `rng` and scratch space `scratch`.
 * `log_w`: Function which returns logarithmic value of `w(x)`: `log_w(x, scratch)`
-* `x0`: Initial state, with a function `similar` which creates a new (mutable) variable of type `x0` (e.g.  `Vector`)
+* `x0`: Initial state of a type which has a function `similar` so that `similar(x0)` creates a new (mutable) variable of type `x0` (e.g.  `Vector`)
 
 The `scratch` can be any data structure that contains temporary variables for your model. By default, `scratch` is `nothing`.
+If you need to use a non-trivial scratch, you need to provide a construction function in a `newScratch` keyword argument.
 
 Here's a toy example which samples $\chi^2$ distribution using $N(0,1)$ proposals.
 
