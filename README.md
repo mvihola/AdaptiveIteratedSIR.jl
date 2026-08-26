@@ -4,7 +4,7 @@ This is a module which implements an iterated sampling importance resampling (i-
 
 ## Run the experiments in the paper
 
-Before running the experiments in the paper [arXiv:2512.00220](https://arxiv.org/abs/2512.00220), you need to clone this repository to your compute and launch Julia with four threads in the folder by calling:
+Before running the experiments in the paper [arXiv:2512.00220](https://arxiv.org/abs/2512.00220), you need to clone this repository to your computer and launch Julia with four threads in the folder by calling:
 
 ```sh
 julia --threads 4
