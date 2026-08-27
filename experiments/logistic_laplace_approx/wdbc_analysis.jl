@@ -1,6 +1,7 @@
 using JLD2
 
-@load "wdbc_out_4threads.jld2"
+fname = "wdbc_out_$(Threads.nthreads())threads.jld2"
+@eval @load $fname
 
 # Normalised cost to match minimum of IREs              
 n_cs = cs * minimum(IREs_)/minimum(cs)
