@@ -140,7 +140,7 @@ function _estimate_rejection_rate_derivative(w, λ, interpolation)
 end
 
 # Worker for non-adaptive i-SIR
-function  _isir_worker(Z, W, V, X, M!, logG, n, thin, N, threads, scratch, elapsedTimes, show_progress)
+function  _isir_worker(Z, W, V, X, M!, logG, n, thin, N, threads, scratch, elapsedTimes, show_progress, norm_const)
 
     progress = Progress(n; enabled=show_progress)
     t0 = time()
@@ -153,6 +153,13 @@ function  _isir_worker(Z, W, V, X, M!, logG, n, thin, N, threads, scratch, elaps
         I = _isir_proposal_selection!(Z, W, V, N, M!, logG, threads, scratch)
         # accept if select non-reference
         acc += (I != 1)
+
+        # Update normalising constant estimate:
+        if !isnothing(norm_const)
+            for i = 2:N
+                @inbounds update!(norm_const, V[i])
+            end
+        end
 
         # Whether we are at 1:thin:n:
         save_k, r = divrem(k-1, thin)
@@ -170,7 +177,7 @@ function  _isir_worker(Z, W, V, X, M!, logG, n, thin, N, threads, scratch, elaps
 end
 
 # Worker for adaptive i-SIR
-function  _isir_worker_adaptive(Z, W, W_, V, X, M!, logG, n, thin, Nmax, N0, cost, dcost, ξ_, interpolation, threads, scratch, elapsedTimes, show_progress)
+function  _isir_worker_adaptive(Z, W, W_, V, X, M!, logG, n, thin, Nmax, N0, cost, dcost, ξ_, interpolation, threads, scratch, elapsedTimes, show_progress, norm_const)
     # Acceptance counter & reference index
     acc = 0; I = 1
 
@@ -188,6 +195,13 @@ function  _isir_worker_adaptive(Z, W, W_, V, X, M!, logG, n, thin, Nmax, N0, cos
 
         # Form proposals
         _isir_proposal!(Z, V, N, M!, logG, threads, scratch)
+
+        # Update normalising constant estimate
+        if !isnothing(norm_const)
+            for i = 2:N
+                @inbounds update!(norm_const, V[i])
+            end
+        end
 
         # Calculate normalised weights
         w = view(W, 1:N); v = view(V, 1:N)
@@ -251,6 +265,7 @@ Generic iterated SIR.
 - `threads`: Whether to parallelise sampling/evaluating the potential
 - `show_progress`: Whether to display progress meter; default `false`
 - `thin`: Store only every thin'th sample; default 1.
+- `normalising_constant`: Whether to estimate the normalising constant; default `false`
 
 Output `out` is a named tuple with the following fields:
 - `samples`: Vector of samples at `1:thin:n`
@@ -261,7 +276,7 @@ Output `out` is a named tuple with the following fields:
 function isir(M!, logG, x0, n, N; interpolation = :linear,
     adaptive=false, N0=2, cost = λ -> 10 + λ, dcost = λ -> 1, 
     threads=false, newScratch=(()->nothing), show_progress=false, 
-    thin=1)
+    thin=1, normalising_constant=false)
 
     # Proposals are stored in Z
     Z = [similar(x0) for k=1:N]
@@ -278,6 +293,11 @@ function isir(M!, logG, x0, n, N; interpolation = :linear,
 
     # Storage for the generated samples
     X = [similar(x0) for k=1:thin:n]
+    if normalising_constant
+        norm_const = RecursiveLogMean()
+    else
+        norm_const = nothing
+    end
 
     if interpolation == :last
         @warn  "interpolation=:last is obsolete"
@@ -290,15 +310,15 @@ function isir(M!, logG, x0, n, N; interpolation = :linear,
     end
     elapsedTimes = [0.0 for k=1:thin:n]
     if !adaptive
-        acc = _isir_worker(Z, W, V, X, M!, logG, n, thin, N, threads, scratch, elapsedTimes, show_progress)
+        acc = _isir_worker(Z, W, V, X, M!, logG, n, thin, N, threads, scratch, elapsedTimes, show_progress, norm_const)
         
-        return (samples=X, acceptance_rate=acc/n, elapsedTimes=elapsedTimes)
+        return (samples=X, acceptance_rate=acc/n, elapsedTimes=elapsedTimes, normalising_constant=norm_const)
     else
         # Storage for the adaptation sequence & another scratch space for weights
         ξ = [0.0 for k=1:thin:n]; W_ = ones(N)
-        acc = _isir_worker_adaptive(Z, W, W_, V, X, M!, logG, n, thin, N, N0, cost, dcost, ξ, interpolation, threads, scratch, elapsedTimes, show_progress)
+        acc = _isir_worker_adaptive(Z, W, W_, V, X, M!, logG, n, thin, N, N0, cost, dcost, ξ, interpolation, threads, scratch, elapsedTimes, show_progress, norm_const)
 
-        return (samples=X, acceptance_rate=acc/n, elapsedTimes=elapsedTimes, ξ=ξ)
+        return (samples=X, acceptance_rate=acc/n, elapsedTimes=elapsedTimes, ξ=ξ, normalising_constant=norm_const)
     end
 end
 

@@ -44,7 +44,7 @@ n_runs = Int.(ceil.(target_time ./ ((timing.β[1] .+ timing.β[2]*Ns_)/n_timing)
 outs = Vector{Any}(undef, length(Ns_))
 for (i, N) in enumerate(Ns_)
     println("i-SIR N=$(N):")
-    outs[i] = isir(M_student!, logG, x0, n_runs[i], N; adaptive=false, threads=true, newScratch=newScratch)
+    outs[i] = isir(M_student!, logG, x0, n_runs[i], N; adaptive=false, threads=true, newScratch=newScratch, normalising_constant=true)
 end
 
 include("../tools/isir_empirical_variances.jl")

@@ -89,11 +89,6 @@ out_adapt = nothing
 end
 
 N_final = round(Int, mean(Λ[:,end]))
-#N = map(ξ -> begin 
-#   _, _, N  = _adapt_project.(ξ, Inf)
-#   N
-#end, out_adapt.ξ)
-#N_final = N[end]
 
 target_time = out_adapt.elapsedTimes[end]*100
 
@@ -103,10 +98,9 @@ n_runs = Int.(ceil.(target_time ./ ((β[1] .+ β[2]*Ns_)/n_timing)))
 outs = Vector{Any}(undef, length(Ns_))
 println("i-SIR for fixed N:")
 @showprogress for (i, N) in enumerate(Ns_)
-   outs[i] = isir(M_laplace_safe!, logG_safe, x, n_runs[i], N; adaptive=false, threads=true, newScratch=newScratch, show_progress=show_progress)
+   outs[i] = isir(M_laplace_safe!, logG_safe, x, n_runs[i], N; adaptive=false, threads=true, 
+   newScratch=newScratch, show_progress=show_progress, normalising_constant=true)
 end
-
-#jldsave("wdbc_out_$(n_threads)threads.jld2"; out_adapt, outs, Ns_, N_final, β, Ts, Ns)
 
 include("../tools/isir_empirical_variances.jl")
 
