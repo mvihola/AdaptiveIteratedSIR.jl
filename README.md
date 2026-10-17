@@ -47,7 +47,12 @@ The necessary ingredients in the implementation are as follows:
 
 * `q!`: Function which simulates a realisation from the distribution: $q$: `q!(x, rng, scratch)` simulates a realisation of $x\sim q$ using random number generator `rng` and scratch space `scratch`.
 * `log_w`: Function which returns logarithmic value of `w(x)`: `log_w(x, scratch)`
-* `x0`: Initial state of a type which has a function `similar` so that `similar(x0)` creates a new (mutable) variable of type `x0` (e.g.  `Vector`)
+* `x0`: Initial state of a type `T` which has the following two methods:
+    - `similar(x0::T)` creates a new (mutable) variable of type `x0`
+    - `copyto!(x_dest::T, x_src::T)` copies 
+    the contents of `x_src` to `x_dest`. 
+
+(For instance, `Vector` type has these, and so do other vector-like types such as `ComponentVector` from `ComponentArrays.jl` or `MVector` from `StaticArrays.jl`.)
 
 The `scratch` can be any data structure that contains temporary variables for your model. By default, `scratch` is `nothing`.
 If you need to use a non-trivial scratch, you need to provide a construction function in a `newScratch` keyword argument.
