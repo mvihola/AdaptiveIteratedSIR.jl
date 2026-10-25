@@ -1,5 +1,7 @@
 # AdaptiveIteratedSIR.jl
 
+[![DOI](https://zenodo.org/badge/1347482557.svg)](https://doi.org/10.5281/zenodo.23641107)
+
 This is a module which implements an iterated sampling importance resampling (i-SIR) Markov chain Monte Carlo algorithm. The implementation finds an appropriate number of particles automatically, as discussed in the related paper:
 
 > P. Laitinen and M. Vihola. **Iterated sampling importance resampling with adaptive number of proposals**. *Stochastic Processes and their Applications*, to appear. ([doi:10.1016/j.spa.2026.105125](https://doi.org/10.1016/j.spa.2026.105125), [arXiv:2512.00220](https://arxiv.org/abs/2512.00220))
